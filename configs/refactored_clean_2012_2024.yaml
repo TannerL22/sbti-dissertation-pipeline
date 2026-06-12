@@ -1,0 +1,64 @@
+mode: refactored_clean
+canonical_panel_path: data/derived/final_analytical_panel_v3.parquet
+legacy_benchmark_dir: outputs/refactored_legacy
+legacy_reproduction_benchmark_dir: outputs/legacy_reproduction/backups/20260510_155417/data/analysis
+output_dir: outputs/refactored_clean
+
+dependent_variables:
+  event_study:
+    - roa_winsorized
+    - op_margin_winsorized
+    - revenue_growth_winsorized
+    - log_revt
+    - log_ebitda
+    - log_emp
+  centered_leverage:
+    - roa_winsorized
+    - op_margin_winsorized
+    - tobins_q_winsorized
+
+controls:
+  full:
+    - size_log_assets
+    - leverage_winsorized
+  no_size:
+    - leverage_winsorized
+
+fixed_effects:
+  firm: sbti_id
+  year: fyear
+cluster_variable: sbti_id
+
+model_filtering_rules:
+  listwise_deletion: true
+  remove_singletons: true
+  remove_constant_dv: true
+
+event_study:
+  mutually_exclusive_bins: true
+  reference_period: -1
+  broad_post_event_included: false
+  bin_definitions:
+    clean_event_pre3_or_less: "rel_year <= -3"
+    clean_event_pre2: "rel_year == -2"
+    omitted_reference: "rel_year == -1"
+    clean_event_0: "rel_year == 0"
+    clean_event_1: "rel_year == 1"
+    clean_event_2: "rel_year == 2"
+    clean_event_3plus: "rel_year >= 3"
+  pretrend_terms:
+    - clean_event_pre3_or_less
+    - clean_event_pre2
+  run_full_spec_default: true
+  run_no_size_diagnostic_for:
+    - revenue_growth_winsorized
+    - log_revt
+  plot_confidence_level: 0.95
+
+centered_leverage:
+  enabled: true
+  centering_sample: model_sample
+  note: "Leverage is centered within each model estimation sample after listwise deletion and legacy sample filters."
+
+global_winsorization_robustness:
+  enabled: false

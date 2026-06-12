@@ -1,0 +1,122 @@
+mode: methodology_robustness
+historical_panel_path: data/derived/final_analytical_panel_v3.parquet
+current_overlay_path: outputs/current_sbti_overlay/current_sbti_firm_overlay.parquet
+output_dir: outputs/methodology_robustness
+
+baseline_model_family: dissertation_main_model1
+dependent_variables:
+  main:
+    - roa_winsorized
+    - op_margin_winsorized
+    - revenue_growth_winsorized
+    - log_revt
+    - log_ebitda
+    - log_emp
+    - tobins_q_winsorized
+  event_study:
+    - op_margin_winsorized
+    - log_ebitda
+    - log_revt
+    - log_emp
+
+controls:
+  - size_log_assets
+  - leverage_winsorized
+fixed_effects:
+  firm: sbti_id
+  year: fyear
+cluster_variable: sbti_id
+
+model_filtering_rules:
+  listwise_deletion: true
+  remove_constant_dv_firms: true
+  remove_singletons: true
+  minimum_model_n: 500
+  minimum_firm_count: 30
+
+metadata_guardrail_note: "Current SBTi overlay fields are May 2026 current metadata. They are robustness flags only and do not redefine historical treatment, event timing, ambition, or legacy Scope 3 variables."
+
+robustness_scenarios:
+  legacy_all_adopters_benchmark:
+    type: benchmark_only
+    caveat_category: legacy_benchmark
+    description: "Legacy/refactored legacy outputs used for comparison; not rerun in this mode."
+  matched_overlay_all:
+    filter: matched_overlay == 1
+    caveat_category: overlay_merge_check
+    description: "Historical firms matched to current overlay only."
+  exclude_financial_institutions:
+    filter: matched_overlay == 1 and current_is_financial_institution != 1
+    caveat_category: sector_rule_regime_exclusion
+    description: "Exclude current financial institution firms."
+  exclude_flag_relevant_any:
+    filter: matched_overlay == 1 and current_is_flag_relevant_any != 1
+    caveat_category: sector_rule_regime_exclusion
+    description: "Exclude current FLAG-relevant sector or observed target proxy firms."
+  exclude_automotive_any:
+    filter: matched_overlay == 1 and current_is_automotive_any != 1
+    caveat_category: sector_rule_regime_exclusion
+    description: "Exclude current automotive sector or automakers-pathway proxy firms."
+  exclude_oil_and_gas:
+    filter: matched_overlay == 1 and current_is_oil_and_gas != 1
+    caveat_category: sector_rule_regime_exclusion
+    description: "Exclude current oil and gas proxy firms."
+  exclude_all_standard_sensitive:
+    filter: matched_overlay == 1 and current_is_financial_institution != 1 and current_is_flag_relevant_any != 1 and current_is_automotive_any != 1 and current_is_oil_and_gas != 1
+    caveat_category: sector_rule_regime_exclusion
+    description: "Exclude finance, FLAG, automotive, and oil and gas proxy firms."
+  financial_institutions_only:
+    filter: matched_overlay == 1 and current_is_financial_institution == 1
+    caveat_category: sector_rule_regime_subsample
+    description: "Current financial institution firms only."
+  flag_relevant_only:
+    filter: matched_overlay == 1 and current_is_flag_relevant_any == 1
+    caveat_category: sector_rule_regime_subsample
+    description: "Current FLAG-relevant proxy firms only."
+  automotive_only:
+    filter: matched_overlay == 1 and current_is_automotive_any == 1
+    caveat_category: sector_rule_regime_subsample
+    description: "Current automotive proxy firms only."
+  oil_and_gas_only:
+    filter: matched_overlay == 1 and current_is_oil_and_gas == 1
+    caveat_category: sector_rule_regime_subsample
+    description: "Current oil and gas proxy firms only."
+  legacy_scope3_absolute_yes:
+    filter: matched_overlay == 1 and has_s3_absolute_target == 1
+    caveat_category: legacy_scope3_subsample
+    description: "Legacy standalone absolute Scope 3 firms."
+  legacy_scope3_absolute_no:
+    filter: matched_overlay == 1 and has_s3_absolute_target == 0
+    caveat_category: legacy_scope3_subsample
+    description: "Legacy no standalone absolute Scope 3 firms."
+  current_any_scope3_target_yes:
+    filter: matched_overlay == 1 and current_has_any_target_including_scope3 == 1
+    caveat_category: current_metadata_scope3
+    description: "Current metadata: any target including Scope 3."
+  current_legacy_like_absolute_scope3_yes:
+    filter: matched_overlay == 1 and current_has_legacy_like_absolute_scope3_target == 1
+    caveat_category: current_metadata_scope3
+    description: "Current metadata: standalone absolute Scope 3 target."
+  current_scope3_non_absolute_or_engagement:
+    filter: matched_overlay == 1 and current_has_any_target_including_scope3 == 1 and current_has_legacy_like_absolute_scope3_target != 1
+    caveat_category: current_metadata_scope3
+    description: "Current metadata: Scope 3 target exposure without legacy-like absolute standalone Scope 3."
+  exclude_current_near_term_commitment_removed:
+    filter: matched_overlay == 1 and current_near_term_commitment_removed != 1
+    caveat_category: post_treatment_current_status_sensitivity
+    description: "Exclude firms currently marked near-term commitment removed."
+  current_near_term_targets_set_only:
+    filter: matched_overlay == 1 and current_near_term_targets_set == 1
+    caveat_category: post_treatment_current_status_sensitivity
+    description: "Current metadata: near-term targets set only."
+  current_net_zero_targets_set_only:
+    filter: matched_overlay == 1 and current_net_zero_targets_set == 1
+    caveat_category: post_treatment_current_status_sensitivity
+    description: "Current metadata: net-zero targets set only."
+
+event_study_scenarios:
+  - matched_overlay_all
+  - exclude_financial_institutions
+  - exclude_all_standard_sensitive
+  - current_any_scope3_target_yes
+  - current_legacy_like_absolute_scope3_yes

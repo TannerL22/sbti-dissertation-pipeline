@@ -1,0 +1,21 @@
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Local data are intentionally not published.
+data/**/*.parquet
+data/**/*.csv
+data/**/*.xlsx
+data/**/*.xls
+
+# Avoid accidentally committing regenerated heavy outputs.
+outputs/**/*.parquet
+outputs/**/*.xlsx
+outputs/**/*.log
+
+# Keep included markdown/csv summaries.
+!outputs/**/*.md
+!outputs/**/*.csv

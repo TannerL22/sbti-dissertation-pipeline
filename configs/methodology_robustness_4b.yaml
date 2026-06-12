@@ -1,0 +1,79 @@
+mode: methodology_robustness_4b
+historical_panel_path: data/derived/final_analytical_panel_v3.parquet
+current_overlay_path: outputs/current_sbti_overlay/current_sbti_firm_overlay.parquet
+output_dir: outputs/methodology_robustness_4b
+
+dependent_variables:
+  - roa_winsorized
+  - op_margin_winsorized
+  - revenue_growth_winsorized
+  - log_revt
+  - log_ebitda
+  - log_emp
+  - tobins_q_winsorized
+
+controls:
+  - size_log_assets
+  - leverage_winsorized
+fixed_effects:
+  firm: sbti_id
+  year: fyear
+cluster_variable: sbti_id
+public_private_variable: firm_type
+leverage_variable: leverage_winsorized
+centered_leverage: true
+
+model_filtering_rules:
+  listwise_deletion: true
+  remove_constant_dv_firms: true
+  remove_singletons: true
+  minimum_model_n: 500
+  minimum_firm_count: 30
+
+public_private_scenarios:
+  matched_overlay_all_public:
+    filter: matched_overlay == 1 and firm_type == 'public'
+    sample_type: public
+  matched_overlay_all_private:
+    filter: matched_overlay == 1 and firm_type == 'private'
+    sample_type: private
+  exclude_financial_institutions_public:
+    filter: matched_overlay == 1 and current_is_financial_institution != 1 and firm_type == 'public'
+    sample_type: public
+  exclude_financial_institutions_private:
+    filter: matched_overlay == 1 and current_is_financial_institution != 1 and firm_type == 'private'
+    sample_type: private
+  exclude_all_standard_sensitive_public:
+    filter: matched_overlay == 1 and current_is_financial_institution != 1 and current_is_flag_relevant_any != 1 and current_is_automotive_any != 1 and current_is_oil_and_gas != 1 and firm_type == 'public'
+    sample_type: public
+  exclude_all_standard_sensitive_private:
+    filter: matched_overlay == 1 and current_is_financial_institution != 1 and current_is_flag_relevant_any != 1 and current_is_automotive_any != 1 and current_is_oil_and_gas != 1 and firm_type == 'private'
+    sample_type: private
+
+interaction_scenarios:
+  matched_overlay_all_public_private_interaction:
+    filter: matched_overlay == 1
+  exclude_financial_institutions_public_private_interaction:
+    filter: matched_overlay == 1 and current_is_financial_institution != 1
+  exclude_all_standard_sensitive_public_private_interaction:
+    filter: matched_overlay == 1 and current_is_financial_institution != 1 and current_is_flag_relevant_any != 1 and current_is_automotive_any != 1 and current_is_oil_and_gas != 1
+
+leverage_scenarios:
+  matched_overlay_all_legacy_leverage:
+    filter: matched_overlay == 1
+    centered: false
+  matched_overlay_all_centered_leverage:
+    filter: matched_overlay == 1
+    centered: true
+  exclude_financial_institutions_legacy_leverage:
+    filter: matched_overlay == 1 and current_is_financial_institution != 1
+    centered: false
+  exclude_financial_institutions_centered_leverage:
+    filter: matched_overlay == 1 and current_is_financial_institution != 1
+    centered: true
+  exclude_all_standard_sensitive_legacy_leverage:
+    filter: matched_overlay == 1 and current_is_financial_institution != 1 and current_is_flag_relevant_any != 1 and current_is_automotive_any != 1 and current_is_oil_and_gas != 1
+    centered: false
+  exclude_all_standard_sensitive_centered_leverage:
+    filter: matched_overlay == 1 and current_is_financial_institution != 1 and current_is_flag_relevant_any != 1 and current_is_automotive_any != 1 and current_is_oil_and_gas != 1
+    centered: true

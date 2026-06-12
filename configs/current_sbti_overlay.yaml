@@ -1,0 +1,36 @@
+mode: current_sbti_overlay
+snapshot_label: May 2026 current SBTi metadata
+overlay_snapshot_date: "2026-05"
+
+company_file: data/raw/current_sbti/companies-excel(2).xlsx
+company_sheet: Data
+target_file: data/raw/current_sbti/targets-excel.xlsx
+target_sheet: WebsiteData
+data_dictionary_file: data/raw/current_sbti/Alpha-Dashboard-Data-Dictionary(3).xlsx
+data_dictionary_sheet: Sheet1
+
+canonical_panel_path: data/derived/final_analytical_panel_v3.parquet
+output_dir: outputs/current_sbti_overlay
+key_field: sbti_id
+
+construct_flags:
+  current_status_flags: true
+  target_type_flags: true
+  scope_flags: true
+  scope3_taxonomy_flags: true
+  net_zero_long_term_near_term_flags: true
+  finance_sector_flag: true
+  flag_relevant_flags: true
+  automotive_flags: true
+  oil_and_gas_flags: true
+  power_utilities_flags: true
+  chemicals_flags: true
+  high_scope3_sector_proxy: true
+  current_dashboard_coverage_flag: true
+
+guardrails:
+  metadata_only: true
+  do_not_redefine_historical_event_dates: true
+  do_not_redefine_legacy_ambition: true
+  do_not_redefine_legacy_scope3: true
+  do_not_treat_current_status_as_historical_status: true

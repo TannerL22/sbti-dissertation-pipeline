@@ -1,0 +1,62 @@
+canonical_panel_path: data/derived/final_analytical_panel_v3.parquet
+legacy_benchmark_dir: outputs/legacy_reproduction/backups/20260510_155417/data/analysis
+output_dir: outputs/refactored_legacy
+
+dependent_variables:
+  main:
+    - roa_winsorized
+    - op_margin_winsorized
+    - revenue_growth_winsorized
+    - tobins_q_winsorized
+    - log_revt
+    - log_ebitda
+    - log_emp
+  event_study:
+    - roa_winsorized
+    - op_margin_winsorized
+    - revenue_growth_winsorized
+    - log_ebitda
+    - log_revt
+    - log_emp
+  predictive:
+    - roa_winsorized
+    - op_margin_winsorized
+    - revenue_growth_winsorized
+    - tobins_q_winsorized
+
+controls:
+  main:
+    - size_log_assets
+    - leverage_winsorized
+  event_study_full:
+    - size_log_assets
+    - leverage_winsorized
+  event_study_no_size:
+    - leverage_winsorized
+
+fixed_effects:
+  firm: sbti_id
+  year: fyear
+cluster_variable: sbti_id
+
+legacy_event_study_compatibility_mode:
+  note: "Legacy compatibility mode: revenue_growth_winsorized and log_revt use no-size fallback to match dissertation-facing outputs."
+  force_no_size_fallback:
+    - revenue_growth_winsorized
+    - log_revt
+  full_spec:
+    - roa_winsorized
+    - op_margin_winsorized
+    - log_ebitda
+    - log_emp
+
+legacy_scope3_definition_note: "Legacy Scope 3 requires standalone scope == 3 and type == Absolute; combined 1+2+3 targets do not count."
+legacy_winsorization_note: "Legacy behavior preserves source-specific 1/99 winsorization already embedded in the canonical final panel."
+
+model_filtering_rules:
+  listwise_deletion: true
+  remove_constant_dv_firms: true
+  remove_singletons: true
+  cluster_standard_errors_by: sbti_id
+
+predictive_success_definition: "Legacy success equals post-event average greater than pre-event average."

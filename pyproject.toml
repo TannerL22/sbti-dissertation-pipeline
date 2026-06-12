@@ -1,0 +1,21 @@
+[project]
+name = "sbti-dissertation-pipeline"
+version = "0.1.0"
+description = "Reproducible dissertation pipeline for SBTi financial impact analysis"
+requires-python = ">=3.11"
+dependencies = [
+  "pandas",
+  "numpy",
+  "pyarrow",
+  "openpyxl",
+  "statsmodels",
+  "scikit-learn",
+  "matplotlib",
+  "pyyaml",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
